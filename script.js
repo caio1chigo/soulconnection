@@ -77,11 +77,18 @@ if (topButton) {
    Loader
 ========================= */
 
+/* =========================
+   Loader
+========================= */
+
 const loader = document.querySelector('#page-loader');
 const loaderFill = document.querySelector('#loader-progress-fill');
 const loaderPercent = document.querySelector('#loader-percent');
 
 if (loader && loaderFill && loaderPercent) {
+  const minimumLoaderTime = 2000;
+  const loaderStartedAt = Date.now();
+
   let loadingValue = 0;
   let loadingFinished = false;
 
@@ -96,12 +103,12 @@ if (loader && loaderFill && loaderPercent) {
 
   const loadingInterval = setInterval(() => {
     if (!loadingFinished && loadingValue < 92) {
-      loadingValue += Math.random() * 7 + 2;
+      loadingValue += Math.random() * 3 + 1;
       updateLoader(loadingValue);
     }
-  }, 120);
+  }, 180);
 
-  window.addEventListener('load', () => {
+  function closeLoader() {
     loadingFinished = true;
     clearInterval(loadingInterval);
 
@@ -113,6 +120,19 @@ if (loader && loaderFill && loaderPercent) {
       setTimeout(() => {
         loader.remove();
       }, 750);
-    }, 420);
-  });
+    }, 550);
+  }
+
+  function finishLoader() {
+    const elapsedTime = Date.now() - loaderStartedAt;
+    const remainingTime = Math.max(minimumLoaderTime - elapsedTime, 0);
+
+    setTimeout(closeLoader, remainingTime);
+  }
+
+  if (document.readyState === 'complete') {
+    finishLoader();
+  } else {
+    window.addEventListener('load', finishLoader, { once: true });
+  }
 }
